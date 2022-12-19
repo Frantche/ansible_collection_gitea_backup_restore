@@ -1,0 +1,39 @@
+---
+
+- name: Read gitea init file
+  shell: "/bin/bash -c 'cat {{ gitea_config_path }}'"
+  register: gitea_ini
+
+- name: Get params
+  ansible.builtin.set_fact:
+    data_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='a', name='a', default=gitea_default_data_path) }}"
+    repo_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='repository', name='ROOT', default=gitea_default_repo_path) }}"
+    custom_tmp_local_copy_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='repository.local', name='LOCAL_COPY_PATH', default=gitea_default_custom_tmp_local_copy_path) }}"
+    custom_indexer_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='indexer', name='ISSUE_INDEXER_PATH', default=gitea_default_custom_indexer_path) }}"
+    custom_avatar_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='picture', name='AVATAR_UPLOAD_PATH', default=gitea_default_custom_avatar_path) }}"
+    db_type: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='DB_TYPE', default='bla') }}"
+    db_host: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='HOST', default='bla') }}"
+    db_database: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='NAME', default='bla') }}"
+    db_username: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='USER', default='bla') }}"
+    db_password: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PASSWD', default='bla') }}"
+    db_ssl_mode: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='SSL_MODE', default='bla') }}"
+    db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
+    db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
+
+- name: backup data
+  shell: "cp {{temp_folder_path}}/data {{data_path}}"
+
+- name: backup repo
+  shell: "cp {{temp_folder_path}}/repo {{repo_path}}"
+
+- name: backup tmp
+  shell: "cp {{temp_folder_path}}/tmp {{custom_tmp_local_copy_path}}"
+
+- name: backup avatars
+  shell: "cp {{temp_folder_path}}/avatars {{custom_avatar_path}}"
+
+- name: backup indexer
+  shell: "cp {{temp_folder_path}}/indexer {{custom_indexer_path}}"
+
+- name: MSQL database - dump
+  shell: "/bin/bash -c 'mysql --user={{db_username}} --password={{db_password}} {{db_database}} < /{{temp_folder_path}}/dump.sql'"

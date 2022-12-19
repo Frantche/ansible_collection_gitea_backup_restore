@@ -1,0 +1,14 @@
+namespace: frantchenco
+name: gitea
+version: 1.0.0
+readme: README.md
+authors:
+  - your name <example@domain.com>
+description: Gitea backup and restore fonction
+license_file: 'LICENSE'
+tags: []
+repository: https://github.com/Frantche/ansible_collection_gitea_backup_restore
+documentation: http://docs.example.com
+homepage: http://example.com
+issues: https://github.com/Frantche/ansible_collection_gitea_backup_restore/issues
+build_ignore: []

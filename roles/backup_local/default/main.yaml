@@ -1,0 +1,3 @@
+---
+gitea_installation: local # docker, kubernetes
+gitea_config_path: /data/gitea/conf/app.ini
