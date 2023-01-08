@@ -7,3 +7,4 @@ gitea_default_repo_path: /data/git/repositories
 gitea_default_custom_indexer_path: /data/gitea/indexers/issues.bleve
 gitea_default_custom_avatar_path: /data/gitea/avatars
 gitea_default_custom_tmp_local_copy_path: /data/gitea/tmp/local-repo
+gitea_docker_app: docker

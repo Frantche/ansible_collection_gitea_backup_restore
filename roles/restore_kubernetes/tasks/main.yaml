@@ -24,22 +24,25 @@
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
 - name: backup data
-  shell: "kubectl cp {{temp_folder_path}}/data {{gitea_k8s_container_app_pod}}:{{data_path}} -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/data {{gitea_k8s_container_app_pod}}:{{data_path}} -n {{gitea_k8s_container_app_namespace}}"
 
 - name: backup repo
-  shell: "kubectl cp {{temp_folder_path}}/repo {{gitea_k8s_container_app_pod}}:{{repo_path}} -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/repo {{gitea_k8s_container_app_pod}}:{{repo_path}} -n {{gitea_k8s_container_app_namespace}}"
 
 - name: backup tmp
-  shell: "kubectl cp {{temp_folder_path}}/tmp {{gitea_k8s_container_app_pod}}:{{custom_tmp_local_copy_path}} -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/tmp {{gitea_k8s_container_app_pod}}:{{custom_tmp_local_copy_path}} -n {{gitea_k8s_container_app_namespace}}"
+  ignore_errors: true
 
 - name: backup avatars
-  shell: "kubectl cp {{temp_folder_path}}/avatars {{gitea_k8s_container_app_pod}}:{{custom_avatar_path}} -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/avatars {{gitea_k8s_container_app_pod}}:{{custom_avatar_path}} -n {{gitea_k8s_container_app_namespace}}"
+  ignore_errors: true
 
 - name: backup indexer
-  shell: "kubectl cp {{temp_folder_path}}/indexer {{gitea_k8s_container_app_pod}}:{{custom_indexer_path}} -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/indexer {{gitea_k8s_container_app_pod}}:{{custom_indexer_path}} -n {{gitea_k8s_container_app_namespace}}"
+  ignore_errors: true
 
 - name: MSQL database - copy dump
-  shell: "kubectl cp {{temp_folder_path}}/dump.sql {{gitea_k8s_container_app_pod}}:/tmp/dump.sql -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.sql {{gitea_k8s_container_app_pod}}:/tmp/dump.sql -n {{gitea_k8s_container_app_namespace}}"
 
 - name: MSQL database - restore
   kubernetes.core.k8s_exec:
