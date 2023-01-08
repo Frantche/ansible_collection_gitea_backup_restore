@@ -42,7 +42,7 @@
   ignore_errors: true
 
 - name: MSQL database - copy dump
-  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.sql {{gitea_k8s_container_app_pod}}:/tmp/dump.sql -n {{gitea_k8s_container_app_namespace}}"
+  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.sql {{gitea_k8s_container_db_pod}}:/tmp/dump.sql -n {{gitea_k8s_container_app_namespace}}"
 
 - name: MSQL database - restore
   kubernetes.core.k8s_exec:
