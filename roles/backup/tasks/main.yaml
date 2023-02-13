@@ -4,7 +4,7 @@
   ansible.builtin.set_fact:
     temp_location: "/tmp"
     temp_folder_name: "gitea-{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"
-    temp_archive_name: "{{gitea_backup_prefix}}-{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}.tar.gz"
+    temp_archive_name: "{{gitea_backup_prefix}}-{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}.zip"
 
 - name: Init backup variables
   ansible.builtin.set_fact:
