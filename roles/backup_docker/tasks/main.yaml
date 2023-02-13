@@ -31,7 +31,7 @@
   - name: dump
     community.docker.docker_container_exec:
       container: "{{ gitea_docker_container_db }}"
-      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}} {{db_database}} > /tmp/dump.mysql.sql'"
+      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}}  --no-tablespaces {{db_database}} > /tmp/dump.mysql.sql'"
   - name: retrieve file
     shell: "{{gitea_docker_app}} cp {{gitea_docker_container_db}}:/tmp/dump.mysql.sql {{temp_folder_path}}/dump.mysql.sql"
   - name: delete dump

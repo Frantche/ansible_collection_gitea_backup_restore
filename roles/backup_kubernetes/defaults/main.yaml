@@ -1,6 +1,4 @@
 ---
-gitea_installation: local # docker, kubernetes
-gitea_config_path: /data/gitea/conf/app.ini
 gitea_k8s_container_app_namespace: gitea
 gitea_k8s_container_app_pod: gitea-0
 gitea_k8s_container_db_namespace: gitea

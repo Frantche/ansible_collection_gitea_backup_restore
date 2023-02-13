@@ -34,7 +34,7 @@
 
 - name: Archive backup
   archive:
-    path: "{{ temp_folder_path }}"
+    path: "{{ temp_folder_path }}/*"
     dest: "{{ temp_archive_path }}"
     format: zip
 

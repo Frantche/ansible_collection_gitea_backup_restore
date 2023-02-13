@@ -2,4 +2,6 @@
 
 gitea_k8s_container_app_namespace: tobedefined
 gitea_k8s_container_app_pod: tobedefined
+gitea_k8s_container_db_namespace: tobedefined
+gitea_k8s_container_db_pod: tobedefined
 gitea_k8s_app: kubectl
