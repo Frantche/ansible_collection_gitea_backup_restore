@@ -20,20 +20,8 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup data
-  shell: "cp {{temp_folder_path}}/data {{data_path}}"
-
 - name: backup repo
   shell: "cp {{temp_folder_path}}/repo {{repo_path}}"
 
-- name: backup tmp
-  shell: "cp {{temp_folder_path}}/tmp {{custom_tmp_local_copy_path}}"
-
-- name: backup avatars
-  shell: "cp {{temp_folder_path}}/avatars {{custom_avatar_path}}"
-
-- name: backup indexer
-  shell: "cp {{temp_folder_path}}/indexer {{custom_indexer_path}}"
-
 - name: MSQL database - dump
-  shell: "/bin/bash -c 'mysql --user={{db_username}} --password={{db_password}} {{db_database}} < /{{temp_folder_path}}/dump.sql'"
+  shell: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /{{temp_folder_path}}/dump.mysql.sql'"

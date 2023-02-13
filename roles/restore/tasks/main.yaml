@@ -21,8 +21,10 @@
     name: frantchenco.gitea.restore_s3
   when: gitea_backup_methode == 's3'
 
-- name: Unarchive
-  shell: "cd {{ temp_folder_path }};tar -zxvf {{ temp_archive_path }}"
+- name: Archive backup
+  ansible.builtin.unarchive:
+    path: "{{ temp_folder_path }}"
+    src: "{{ temp_archive_path }}"
 
 - name: Restore gitea local
   ansible.legacy.include_role: 
@@ -42,4 +44,9 @@
 - name: Remove temporary folder
   ansible.builtin.file:
     path: "{{ temp_folder_path }}"
+    state: absent
+  
+- name: Remove temporary archive
+  ansible.builtin.file:
+    path: "{{ temp_archive_path }}"
     state: absent

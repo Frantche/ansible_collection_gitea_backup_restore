@@ -22,31 +22,19 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup data
-  shell: "docker cp {{temp_folder_path}}/data {{gitea_container_app}}:{{data_path}}"
-
 - name: backup repo
   shell: "docker cp {{temp_folder_path}}/repo {{gitea_container_app}}:{{repo_path}}"
 
-- name: backup tmp
-  shell: "docker cp {{temp_folder_path}}/tmp {{gitea_container_app}}:{{custom_tmp_local_copy_path}}"
-
-- name: backup avatars
-  shell: "docker cp {{temp_folder_path}}/avatars {{gitea_container_app}}:{{custom_avatar_path}}"
-
-- name: backup indexer
-  shell: "docker cp {{temp_folder_path}}/indexer {{gitea_container_app}}:{{custom_indexer_path}}"
-
-
-- name: MSQL database - copy dump
-  shell: "docker cp {{temp_folder_path}}/dump.sql {{gitea_container_db}}:/tmp/dump.sql"
-
-- name: MSQL database - restore
-  community.docker.docker_container_exec:
-    container: "{{ gitea_container_db }}"
-    command: "/bin/bash -c 'mysql --user={{db_username}} --password={{db_password}} {{db_database}} < /tmp/dump.sql'"
-
-- name: MSQL database - delete dump
-  community.docker.docker_container_exec:
-    container: "{{ gitea_container_db }}"
-    command: "/bin/bash -c 'rm /tmp/dump.sql'"
+- name: MSQL database
+  when: db_type == "mysql"
+  block:
+  - name: copy dump
+    shell: "docker cp {{temp_folder_path}}/dump.mysql.sql {{gitea_container_db}}:/tmp/dump.mysql.sql"
+  - name: restore
+    community.docker.docker_container_exec:
+      container: "{{ gitea_container_db }}"
+      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /tmp/dump.mysql.sql'"
+  - name: delete dump
+    community.docker.docker_container_exec:
+      container: "{{ gitea_container_db }}"
+      command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
