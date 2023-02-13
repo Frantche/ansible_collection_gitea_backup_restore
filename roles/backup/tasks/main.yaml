@@ -33,7 +33,10 @@
   when: gitea_installation == 'kubernetes'
 
 - name: Archive backup
-  shell: "cd {{ temp_folder_path }}; tar -czf {{ temp_archive_path }} ."
+  archive:
+    path: "{{ temp_folder_path }}"
+    dest: "{{ temp_archive_path }}"
+    format: zip
 
 - name: Backup archive to s3
   ansible.legacy.include_role: 

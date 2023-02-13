@@ -23,32 +23,37 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup data
-  shell: "kubectl cp {{gitea_k8s_container_app_pod}}:{{data_path}} {{temp_folder_path}}/data -n {{gitea_k8s_container_app_namespace}}"
-
 - name: backup repo
   shell: "kubectl cp {{gitea_k8s_container_app_pod}}:{{repo_path}} {{temp_folder_path}}/repo -n {{gitea_k8s_container_app_namespace}}"
 
-- name: backup tmp
-  shell: "kubectl cp {{gitea_k8s_container_app_pod}}:{{custom_tmp_local_copy_path}} {{temp_folder_path}}/tmp -n {{gitea_k8s_container_app_namespace}}"
+- name: MSQL database
+  when: db_type == "mysql"
+  block:
+  - name: dump
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}} {{db_database}} > /tmp/dump.mysql.sql'"
+  - name: copy dump
+    shell: "kubectl cp {{gitea_k8s_container_app_pod}}:/tmp/dump.mysql.sql {{temp_folder_path}}/dump.mysql.sql -n {{gitea_k8s_container_app_namespace}}"
+  - name: delete dump
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
 
-- name: backup avatars
-  shell: "kubectl cp {{gitea_k8s_container_app_pod}}:{{custom_avatar_path}} {{temp_folder_path}}/avatars -n {{gitea_k8s_container_app_namespace}}"
-
-- name: backup indexer
-  shell: "kubectl cp {{gitea_k8s_container_app_pod}}:{{custom_indexer_path}} {{temp_folder_path}}/indexer -n {{gitea_k8s_container_app_namespace}}"
-
-- name: MSQL database - dump
-  kubernetes.core.k8s_exec:
-    namespace: "{{gitea_k8s_container_db_namespace}}"
-    pod: "{{gitea_k8s_container_db_pod}}"
-    command: "/bin/bash -c 'mysqldump --user={{db_username}} --password={{db_password}} {{db_database}} > /tmp/dump.sql'"
-
-- name: MSQL database - copy dump
-  shell: "kubectl cp {{gitea_k8s_container_app_pod}}:/tmp/dump.sql {{temp_folder_path}}/dump.sql -n {{gitea_k8s_container_app_namespace}}"
-
-- name: MSQL database - delete dump
-  kubernetes.core.k8s_exec:
-    namespace: "{{gitea_k8s_container_db_namespace}}"
-    pod: "{{gitea_k8s_container_db_pod}}"
-    command: "/bin/bash -c 'rm /tmp/dump.sql'"
+- name: PostgreSQL database
+  when: db_type == "postgres"
+  block:
+  - name: dump
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'export PGPASSWORD={{db_password}}; pg_dump --username={{db_username}} {{db_database}} > /tmp/dump.postgres.sql'"
+  - name: copy dump
+    shell: "kubectl cp {{gitea_k8s_container_app_pod}}:/tmp/dump.postgres.sql {{temp_folder_path}}/dump.postgres.sql -n {{gitea_k8s_container_app_namespace}}"
+  - name: delete dump
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"

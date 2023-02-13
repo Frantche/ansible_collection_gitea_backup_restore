@@ -22,30 +22,19 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup data
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{data_path}} {{temp_folder_path}}/data"
-
 - name: backup repo
   shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{repo_path}} {{temp_folder_path}}/repo"
 
-- name: backup tmp
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{custom_tmp_local_copy_path}} {{temp_folder_path}}/tmp"
-
-- name: backup avatars
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{custom_avatar_path}} {{temp_folder_path}}/avatars"
-
-- name: backup indexer
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{custom_indexer_path}} {{temp_folder_path}}/indexer"
-
-- name: MSQL database - dump
-  community.docker.docker_container_exec:
-    container: "{{ gitea_docker_container_db }}"
-    command: "/bin/bash -c 'mysqldump --user={{db_username}} --password={{db_password}} {{db_database}} > /tmp/dump.sql'"
-
-- name: MSQL database - retrieve file
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_db}}:/tmp/dump.sql {{temp_folder_path}}/dump.sql"
-
-- name: MSQL database - delete dump
-  community.docker.docker_container_exec:
-    container: "{{ gitea_docker_container_db }}"
-    command: "/bin/bash -c 'rm /tmp/dump.sql'"
+- name: MSQL database
+  when: db_type == "mysql"
+  block:
+  - name: dump
+    community.docker.docker_container_exec:
+      container: "{{ gitea_docker_container_db }}"
+      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}} {{db_database}} > /tmp/dump.mysql.sql'"
+  - name: retrieve file
+    shell: "{{gitea_docker_app}} cp {{gitea_docker_container_db}}:/tmp/dump.mysql.sql {{temp_folder_path}}/dump.mysql.sql"
+  - name: delete dump
+    community.docker.docker_container_exec:
+      container: "{{ gitea_docker_container_db }}"
+      command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
