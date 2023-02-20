@@ -3,8 +3,6 @@ gitea_installation: local # docker, kubernetes
 gitea_backup_methode: s3
 
 gitea_config_path: /data/gitea/conf/app.ini
-gitea_default_data_path: /data/gitea/data
 gitea_default_repo_path: /data/git/repositories
-gitea_default_custom_indexer_path: /data/gitea/indexers/issues.bleve
-gitea_default_custom_avatar_path: /data/gitea/avatars
-gitea_default_custom_tmp_local_copy_path: /data/gitea/tmp/local-repo
+gitea_default_avatar_path: /data/avatars
+gitea_default_avatar_path: /data/repo-avatars

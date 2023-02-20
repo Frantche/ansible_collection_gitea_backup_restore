@@ -6,11 +6,9 @@
 
 - name: Get params
   ansible.builtin.set_fact:
-    data_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='a', name='a', default=gitea_default_data_path) }}"
     repo_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='repository', name='ROOT', default=gitea_default_repo_path) }}"
-    custom_tmp_local_copy_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='repository.local', name='LOCAL_COPY_PATH', default=gitea_default_custom_tmp_local_copy_path) }}"
-    custom_indexer_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='indexer', name='ISSUE_INDEXER_PATH', default=gitea_default_custom_indexer_path) }}"
-    custom_avatar_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='picture', name='AVATAR_UPLOAD_PATH', default=gitea_default_custom_avatar_path) }}"
+    avatar_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='picture', name='AVATAR_UPLOAD_PATH', default=gitea_default_avatar_path) }}"
+    avatar_repo_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='picture', name='REPOSITORY_AVATAR_UPLOAD_PATH', default=gitea_default_avatar_repo_path) }}"
     db_type: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='DB_TYPE', default='bla') }}"
     db_host: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='HOST', default='bla') }}"
     db_database: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='NAME', default='bla') }}"
@@ -23,5 +21,13 @@
 - name: backup repo
   shell: "cp {{temp_folder_path}}/repo {{repo_path}}"
 
+- name: backup avatars
+  shell: "cp {{temp_folder_path}}/avatars {{avatar_path}}"
+  ignore_errors: true
+
+- name: backup repo-avatars
+  shell: "cp {{temp_folder_path}}/repo-avatars {{avatar_repo_path}}"
+  ignore_errors: true
+  
 - name: MSQL database - dump
   shell: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /{{temp_folder_path}}/dump.mysql.sql'"
