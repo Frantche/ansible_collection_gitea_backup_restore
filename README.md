@@ -7,7 +7,8 @@ Documentation for the collection.
 
 Name | Description
 --- | ---
-frantchenco.gitea.backup|Install Helm Chart with Fail Safe retry and version check
+frantchenco.gitea.backup|Create a backup of your gitea installation
+frantchenco.gitea.restore|Restore your gitea installation
 
 ## Installation and Usage
 
@@ -17,61 +18,90 @@ create a file name "requirements.yml"
 ```yaml
 ---
 collections:
-    - name: kubernetes.core
-      version: 2.3.2
-    - name: community.docker
-      version: 3.3.2
-    - name: community.general
-      version: 5.7.0
-    - name: git+https://github.com/Frantche/ansible_collection_gitea_backup_restore.git,main
+- name: community.general
+  version: 5.7.0
+- name: ansible.posix
+  version: 1.4.0
+- name: kubernetes.core
+  version: 2.3.2
+- name: community.docker
+  version: 3.3.2
+- name: amazon.aws
+  version: 5.2.0
+- name: git+https://github.com/Frantche/ansible_collection_gitea_backup_restore.git,master
 ```
 
 Before using the collection, you need to install it with the Ansible Galaxy CLI:
 
     ansible-galaxy install -r ./requirements.yml
 
-### Role example
+### Examples
 
-It allows to install the chart on a kubernetes cluster.
-Please follows the offical [kubernetes.core.helm module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html) to update parameters
+### Backup
 
-You need to use a /.kube/config file to access the kubernetes cluster.
+If you would like to perform a backup of your gitea installation. You will need to prepare the following variables:
 
-```yaml
----
-- name: "Deploy Name of your chart chart"
-  frantchenco.helm_wrapper.install:
-    name: Release name to manage.
-    chart_repo_url: Chart repository URL where to locate the requested chart.
-    chart_version: Chart version to install. If this is not specified or invalides, the latest version is installed.
-    chart_ref: chart_reference on chart repository.
-    release_namespace: Release name to manage.
-    create_namespace: Create the release namespace if not present.
-    values: Value to pass to chart. example "{{ helm_cert_manager_values | to_json }}"
-    values_files: Value files to pass to chart.
-    wait: When release_state is set to present, wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment are in a ready state before marking the release as successful.
-    force: Helm option to force reinstall, ignore on new install.
-    atomic: If set, the installation process deletes the installation on failure.
-    skip_crds: Skip custom resource definitions when installing or upgrading.
-    update_repo_cache: Run helm repo update before the operation
-    binary_path: The path of a helm binary to use.
-    context: Helm option to specify which kubeconfig context to use.
-    kubeconfig: Helm option to specify kubeconfig path to use.
-    validate_certs: Whether or not to verify the API server’s SSL certificates
-```
+If you wish to backup kubernetes
+gitea_installation: kubernetes
+gitea_k8s_container_app_namespace: tobedefined
+gitea_k8s_container_app_pod: 	tobedefined
+gitea_k8s_container_db_namespace: tobedefined
+gitea_k8s_container_db_pod: tobedefined
 
+If you wish to backup docker
+gitea_installation: docker
+gitea_docker_container_app: tobedefined
+gitea_docker_container_db: tobedefined
 
-### Playbook example
+The variable to push to backup to S3
+gitea_backup_s3_access_key: tobedefined
+gitea_backup_s3_secret_key: tobedefined
+gitea_backup_s3_bucket: tobedefined
+gitea_backup_s3_endpoint: tobedefined
+gitea_backup_s3_encrypt: tobedefined
 
-Inventory example:
 
 
 ```yaml
 ---
 
-- hosts: master[0]
-  serial: 1
+- hosts: gitea
+  gather_facts: yes
   become: yes
   roles:
-   - role: frantchenco.helm_wrapper.helm_prereq
+  - role: frantchenco.gitea.backup
+```
+
+### Restore
+
+If you would like to perform a restore of your gitea installation. You will need to prepare the following variables:
+
+If you wish to backup kubernetes
+gitea_installation: kubernetes
+gitea_k8s_container_app_namespace: tobedefined
+gitea_k8s_container_app_pod: 	tobedefined
+gitea_k8s_container_db_namespace: tobedefined
+gitea_k8s_container_db_pod: tobedefined
+
+If you wish to backup docker
+gitea_installation: docker
+gitea_docker_container_app: tobedefined
+gitea_docker_container_db: tobedefined
+
+The variable to download the backup file from S3
+gitea_backup_s3_access_key: tobedefined
+gitea_backup_s3_secret_key: tobedefined
+gitea_backup_s3_bucket: tobedefined
+gitea_backup_s3_endpoint: tobedefined
+gitea_backup_s3_encrypt: tobedefined
+gitea_backup_s3_filename: tobedefined
+
+```yaml
+---
+
+- hosts: gitea
+  gather_facts: yes
+  become: yes
+  roles:
+  - role: frantchenco.gitea.restore
 ```

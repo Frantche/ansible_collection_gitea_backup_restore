@@ -8,7 +8,7 @@
 - name: Init backup variables
   ansible.builtin.set_fact:
     temp_folder_path: "{{temp_location}}/{{temp_folder_name}}"
-    temp_archive_path: "{{temp_location}}/{{temp_folder_name}}/backup.tar.gz"
+    temp_archive_path: "{{temp_location}}/backup.zip"
 
 - name: Create temporary folder
   ansible.builtin.file:
@@ -23,8 +23,9 @@
 
 - name: Archive backup
   ansible.builtin.unarchive:
-    path: "{{ temp_folder_path }}"
+    dest: "{{ temp_folder_path }}"
     src: "{{ temp_archive_path }}"
+    remote_src: yes
 
 - name: Restore gitea local
   ansible.legacy.include_role: 

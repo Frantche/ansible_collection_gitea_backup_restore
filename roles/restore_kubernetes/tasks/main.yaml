@@ -37,15 +37,34 @@
   block:
   - name: MYSQL - copy dump
     shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.mysql.sql {{gitea_k8s_container_db_pod}}:/tmp/dump.mysql.sql -n {{gitea_k8s_container_db_namespace}}"
-
   - name: MYSQL - restore
     kubernetes.core.k8s_exec:
       namespace: "{{gitea_k8s_container_db_namespace}}"
       pod: "{{gitea_k8s_container_db_pod}}"
       command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /tmp/dump.mysql.sql'"
-
   - name: MYSQL - delete dump
     kubernetes.core.k8s_exec:
       namespace: "{{gitea_k8s_container_db_namespace}}"
       pod: "{{gitea_k8s_container_db_pod}}"
       command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
+
+- name: PostgreSQL database
+  when: db_type == "postgres"
+  block:
+  - name: PostgreSQL - copy dump
+    shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.postgres.sql {{gitea_k8s_container_db_pod}}:/tmp/dump.postgres.sql -n {{gitea_k8s_container_db_namespace}}"
+  - name: PostgreSQL - Delete DB
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} -c \"drop owned by {{db_username}}\"'"
+  - name: PostgreSQL - Restore DB
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} {{db_database}} < /tmp/dump.postgres.sql'"
+  - name: PostgreSQL - delete dump
+    kubernetes.core.k8s_exec:
+      namespace: "{{gitea_k8s_container_db_namespace}}"
+      pod: "{{gitea_k8s_container_db_pod}}"
+      command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"

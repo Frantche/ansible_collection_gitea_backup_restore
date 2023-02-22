@@ -44,3 +44,21 @@
     community.docker.docker_container_exec:
       container: "{{ gitea_container_db }}"
       command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
+
+- name: PostgreSQL database
+  when: db_type == "postgres"
+  block:
+  - name: PostgreSQL - copy dump
+    shell: "docker cp {{temp_folder_path}}/dump.postgres.sql {{gitea_container_db}}:/tmp/dump.postgres.sql"
+  - name: PostgreSQL - Delete DB
+    community.docker.docker_container_exec:
+      container: "{{ gitea_container_db }}"
+      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} -c \"drop owned by {{db_username}}\"'"
+  - name: PostgreSQL - Restore DB
+    community.docker.docker_container_exec:
+      container: "{{ gitea_container_db }}"
+      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} {{db_database}} < /tmp/dump.postgres.sql'"
+  - name: PostgreSQL - delete dump
+    community.docker.docker_container_exec:
+      container: "{{ gitea_container_db }}"
+      command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"

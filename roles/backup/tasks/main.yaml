@@ -33,7 +33,7 @@
   when: gitea_installation == 'kubernetes'
 
 - name: Archive backup
-  archive:
+  ansible.builtin.archive:
     path: "{{ temp_folder_path }}/*"
     dest: "{{ temp_archive_path }}"
     format: zip
