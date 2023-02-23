@@ -1,37 +1,37 @@
 ---
 
-- name: add new archive
+- name: Add new archive
   amazon.aws.s3_object:
-    bucket: "{{gitea_backup_s3_bucket}}"
-    object: "{{temp_archive_name}}"
-    src: "{{temp_archive_path}}"
+    bucket: "{{ gitea_backup_s3_bucket }}"
+    object: "{{ temp_archive_name }}"
+    src: "{{ temp_archive_path }}"
     mode: put
-    endpoint_url: "{{gitea_backup_s3_endpoint}}"
-    access_key: "{{gitea_backup_s3_access_key}}"
-    secret_key: "{{gitea_backup_s3_secret_key}}"
-    encrypt: "{{gitea_backup_s3_encrypt}}"
+    endpoint_url: "{{ gitea_backup_s3_endpoint }}"
+    access_key: "{{ gitea_backup_s3_access_key }}"
+    secret_key: "{{ gitea_backup_s3_secret_key }}"
+    encrypt: "{{ gitea_backup_s3_encrypt }}"
 
 - name: List all file
   amazon.aws.s3_object:
-    bucket: "{{gitea_backup_s3_bucket}}"
+    bucket: "{{ gitea_backup_s3_bucket }}"
     mode: list
-    prefix: "{{gitea_backup_prefix}}"
-    endpoint_url: "{{gitea_backup_s3_endpoint}}"
-    access_key: "{{gitea_backup_s3_access_key}}"
-    secret_key: "{{gitea_backup_s3_secret_key}}"
+    prefix: "{{ gitea_backup_prefix }}"
+    endpoint_url: "{{ gitea_backup_s3_endpoint }}"
+    access_key: "{{ gitea_backup_s3_access_key }}"
+    secret_key: "{{ gitea_backup_s3_secret_key }}"
   register: s3_bucket_file_list
 
 - name: Init s3 file to delete
   ansible.builtin.set_fact:
-    s3_file_to_delete: "{{s3_bucket_file_list.s3_keys|frantchenco.gitea.sort_remove_element(reverse=True, keep_count=gitea_backup_s3_retention_count)}}"
+    s3_file_to_delete: "{{ s3_bucket_file_list.s3_keys | frantchenco.gitea.sort_remove_element(reverse=True, keep_count=gitea_backup_s3_retention_count) }}"
 
 - name: Delete items from bucket
   amazon.aws.s3_object:
-    bucket: "{{gitea_backup_s3_bucket}}"
+    bucket: "{{ gitea_backup_s3_bucket }}"
     object: "{{ item }}"
     mode: delobj
-    endpoint_url: "{{gitea_backup_s3_endpoint}}"
-    access_key: "{{gitea_backup_s3_access_key}}"
-    secret_key: "{{gitea_backup_s3_secret_key}}"
+    endpoint_url: "{{ gitea_backup_s3_endpoint }}"
+    access_key: "{{ gitea_backup_s3_access_key }}"
+    secret_key: "{{ gitea_backup_s3_secret_key }}"
   with_items:
     - "{{ s3_file_to_delete }}"

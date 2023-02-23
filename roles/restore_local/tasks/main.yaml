@@ -18,25 +18,25 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup repo
-  shell: "cp {{temp_folder_path}}/repo {{repo_path}}"
+- name: Restore repo
+  ansible.builtin.shell: "cp {{ temp_folder_path }}/repo {{ repo_path }}"
 
-- name: backup avatars
-  shell: "cp {{temp_folder_path}}/avatars {{avatar_path}}"
+- name: Restore avatars
+  ansible.builtin.shell: "cp {{ temp_folder_path }}/avatars {{ avatar_path }}"
   ignore_errors: true
 
-- name: backup repo-avatars
-  shell: "cp {{temp_folder_path}}/repo-avatars {{avatar_repo_path}}"
+- name: Restore repo-avatars
+  ansible.builtin.shell: "cp {{ temp_folder_path }}/repo-avatars {{ avatar_repo_path }}"
   ignore_errors: true
-  
+
 - name: MSQL database - restore
-  shell: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /{{temp_folder_path}}/dump.mysql.sql'"
+  ansible.builtin.shell: "/bin/bash -c 'export MYSQL_PWD={{ db_password }};mysql --user={{ db_username }} {{ db_database } < /{{ temp_folder_path }}/dump.mysql.sql'"
   when: db_type == "mysql"
 
 - name: PostgreSQL database - delete DB
-  shell: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} -c \"drop owned by {{db_username}}\"'"
+  ansible.builtin.shell: "/bin/bash -c 'export PGPASSWORD={{ db_password }};psql --username={{ db_username }} -c \"drop owned by {{ db_username }}\"'"
   when: db_type == "postgres"
 
 - name: PostgreSQL database - restore DB
-  shell: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} {{db_database}} < /tmp/dump.postgres.sql'"
+  ansible.builtin.shell: "/bin/bash -c 'export PGPASSWORD={{ db_password }};psql --username={{ db_username }} {{ db_database }} < /tmp/dump.postgres.sql'"
   when: db_type == "postgres"

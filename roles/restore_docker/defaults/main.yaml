@@ -1,4 +1,4 @@
 ---
-gitea_container_app: gitea
-gitea_container_db: mysql
+gitea_docker_container_app: gitea
+gitea_docker_container_db: mysql
 

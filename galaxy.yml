@@ -6,7 +6,7 @@ authors:
   - your name <example@domain.com>
 description: Gitea backup and restore fonction
 license_file: 'LICENSE'
-tags: []
+tags: ['application', 'gitea']
 repository: https://github.com/Frantche/ansible_collection_gitea_backup_restore
 documentation: http://docs.example.com
 homepage: http://example.com

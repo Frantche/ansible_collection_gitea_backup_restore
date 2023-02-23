@@ -20,42 +20,42 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup repo
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{repo_path}} {{temp_folder_path}}/repo"
+- name: Backup repo
+  ansible.builtin.shell: "{{ gitea_docker_app }} cp {{ gitea_docker_container_app }}:{{ repo_path }} {{ temp_folder_path }}/repo"
   ignore_errors: true
 
-- name: backup avatars
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{avatar_path}} {{temp_folder_path}}/avatars"
+- name: Backup avatars
+  ansible.builtin.shell: "{{ gitea_docker_app }} cp {{ gitea_docker_container_app }}:{{ avatar_path }} {{ temp_folder_path }}/avatars"
   ignore_errors: true
 
-- name: backup avatars repo
-  shell: "{{gitea_docker_app}} cp {{gitea_docker_container_app}}:{{avatar_repo_path}} {{temp_folder_path}}/repo-avatars"
+- name: Backup avatars repo
+  ansible.builtin.shell: "{{ gitea_docker_app }} cp {{ gitea_docker_container_app }}:{{ avatar_repo_path }} {{temp_folder_path }}/repo-avatars"
   ignore_errors: true
-  
+
 - name: MSQL database
   when: db_type == "mysql"
   block:
-  - name: dump
-    community.docker.docker_container_exec:
-      container: "{{ gitea_docker_container_db }}"
-      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}}  --no-tablespaces {{db_database}} > /tmp/dump.mysql.sql'"
-  - name: retrieve file
-    shell: "{{gitea_docker_app}} cp {{gitea_docker_container_db}}:/tmp/dump.mysql.sql {{temp_folder_path}}/dump.mysql.sql"
-  - name: delete dump
-    community.docker.docker_container_exec:
-      container: "{{ gitea_docker_container_db }}"
-      command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
+    - name: MSQL - dump
+      community.docker.docker_container_exec:
+        container: "{{ gitea_docker_container_db }}"
+        command: "/bin/bash -c 'export MYSQL_PWD={{ db_password }};mysqldump --user={{ db_username }}  --no-tablespaces {{ db_database }} > /tmp/dump.mysql.sql'"
+    - name: MSQL - retrieve file
+      ansible.builtin.shell: "{{ gitea_docker_app }} cp {{ gitea_docker_container_db }}:/tmp/dump.mysql.sql {{ temp_folder_path }}/dump.mysql.sql"
+    - name: MSQL - delete dump
+      community.docker.docker_container_exec:
+        container: "{{ gitea_docker_container_db }}"
+        command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
 
 - name: PostgreSQL database
   when: db_type == "postgres"
   block:
-  - name: PostgreSQL - dump
-    community.docker.docker_container_exec:
-      container: "{{ gitea_docker_container_db }}"
-      command: "/bin/bash -c 'export PGPASSWORD={{db_password}}; pg_dump --username={{db_username}} {{db_database}} > /tmp/dump.postgres.sql'"
-  - name: PostgreSQL - copy dump
-    shell: "{{gitea_docker_app}} cp {{gitea_docker_container_db}}:/tmp/dump.postgres.sql {{temp_folder_path}}/dump.postgres.sql"
-  - name: PostgreSQL - delete dump
-    community.docker.docker_container_exec:
-      container: "{{ gitea_docker_container_db }}"
-      command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"
+    - name: PostgreSQL - dump
+      community.docker.docker_container_exec:
+        container: "{{ gitea_docker_container_db }}"
+        command: "/bin/bash -c 'export PGPASSWORD={{ db_password }}; pg_dump --username={{ db_username }} {{ db_database }} > /tmp/dump.postgres.sql'"
+    - name: PostgreSQL - copy dump
+      ansible.builtin.shell: "{{ gitea_docker_app }} cp {{ gitea_docker_container_db }}:/tmp/dump.postgres.sql {temp_folder_path }}/dump.postgres.sql"
+    - name: PostgreSQL - delete dump
+      community.docker.docker_container_exec:
+        container: "{{ gitea_docker_container_db }}"
+        command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"

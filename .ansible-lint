@@ -2,3 +2,8 @@ skip_list:
   - '403'
   - 'no-changed-when'
   - 'ignore-errors'
+  - 'command-instead-of-shell'
+  - 'parser-error'
+  - 'yaml[line-length]'
+  - 'yaml[truthy]'
+  - 'galaxy[no-changelog]'

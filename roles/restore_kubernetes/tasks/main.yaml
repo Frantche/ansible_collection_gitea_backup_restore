@@ -2,8 +2,8 @@
 
 - name: Read gitea init file
   kubernetes.core.k8s_exec:
-    namespace: "{{gitea_k8s_container_app_namespace}}"
-    pod: "{{gitea_k8s_container_app_pod}}"
+    namespace: "{{ gitea_k8s_container_app_namespace }}"
+    pod: "{{ gitea_k8s_container_app_pod }}"
     command: "/bin/bash -c 'cat {{ gitea_config_path }}'"
   register: gitea_ini
 
@@ -21,50 +21,50 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup repo
-  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/repo {{gitea_k8s_container_app_pod}}:{{repo_path}} -n {{gitea_k8s_container_app_namespace}}"
+- name: Restore repo
+  ansible.builtin.shell: "{{ gitea_k8s_app }} cp {{ temp_folder_path }}/repo {{ gitea_k8s_container_app_pod }}:{{ repo_path }} -n {{ gitea_k8s_container_app_namespace }}"
 
-- name: backup avatars
-  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/avatars {{gitea_k8s_container_app_pod}}:{{avatar_path}} -n {{gitea_k8s_container_app_namespace}}"
+- name: Restore avatars
+  ansible.builtin.shell: "{{ gitea_k8s_app }} cp {{ temp_folder_path }}/avatars {{ gitea_k8s_container_app_pod }}:{{ avatar_path }} -n {{ gitea_k8s_container_app_namespace }}"
   ignore_errors: true
 
-- name: backup repo-avatars
-  shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/repo-avatars {{gitea_k8s_container_app_pod}}:{{avatar_repo_path}} -n {{gitea_k8s_container_app_namespace}}"
+- name: Restore repo-avatars
+  ansible.builtin.shell: "{{ gitea_k8s_app }} cp {{ temp_folder_path }}/repo-avatars {{ gitea_k8s_container_app_pod }}:{{ avatar_repo_path }} -n {{ gitea_k8s_container_app_namespace }}"
   ignore_errors: true
-  
+
 - name: MYSQL database
   when: db_type == "mysql"
   block:
-  - name: MYSQL - copy dump
-    shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.mysql.sql {{gitea_k8s_container_db_pod}}:/tmp/dump.mysql.sql -n {{gitea_k8s_container_db_namespace}}"
-  - name: MYSQL - restore
-    kubernetes.core.k8s_exec:
-      namespace: "{{gitea_k8s_container_db_namespace}}"
-      pod: "{{gitea_k8s_container_db_pod}}"
-      command: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysql --user={{db_username}} {{db_database}} < /tmp/dump.mysql.sql'"
-  - name: MYSQL - delete dump
-    kubernetes.core.k8s_exec:
-      namespace: "{{gitea_k8s_container_db_namespace}}"
-      pod: "{{gitea_k8s_container_db_pod}}"
-      command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
+    - name: MYSQL - copy dump
+      ansible.builtin.shell: "{{ gitea_k8s_app }} cp {{ temp_folder_path }}/dump.mysql.sql {{ gitea_k8s_container_db_pod }}:/tmp/dump.mysql.sql -n {{ gitea_k8s_container_db_namespace }}"
+    - name: MYSQL - restore
+      kubernetes.core.k8s_exec:
+        namespace: "{{ gitea_k8s_container_db_namespace }}"
+        pod: "{{ gitea_k8s_container_db_pod }}"
+        command: "/bin/bash -c 'export MYSQL_PWD={{ db_password }};mysql --user={{ db_username }} {{ db_database }} < /tmp/dump.mysql.sql'"
+    - name: MYSQL - delete dump
+      kubernetes.core.k8s_exec:
+        namespace: "{{ gitea_k8s_container_db_namespace }}"
+        pod: "{{ gitea_k8s_container_db_pod }}"
+        command: "/bin/bash -c 'rm /tmp/dump.mysql.sql'"
 
 - name: PostgreSQL database
   when: db_type == "postgres"
   block:
-  - name: PostgreSQL - copy dump
-    shell: "{{gitea_k8s_app}} cp {{temp_folder_path}}/dump.postgres.sql {{gitea_k8s_container_db_pod}}:/tmp/dump.postgres.sql -n {{gitea_k8s_container_db_namespace}}"
-  - name: PostgreSQL - Delete DB
-    kubernetes.core.k8s_exec:
-      namespace: "{{gitea_k8s_container_db_namespace}}"
-      pod: "{{gitea_k8s_container_db_pod}}"
-      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} -c \"drop owned by {{db_username}}\"'"
-  - name: PostgreSQL - Restore DB
-    kubernetes.core.k8s_exec:
-      namespace: "{{gitea_k8s_container_db_namespace}}"
-      pod: "{{gitea_k8s_container_db_pod}}"
-      command: "/bin/bash -c 'export PGPASSWORD={{db_password}};psql --username={{db_username}} {{db_database}} < /tmp/dump.postgres.sql'"
-  - name: PostgreSQL - delete dump
-    kubernetes.core.k8s_exec:
-      namespace: "{{gitea_k8s_container_db_namespace}}"
-      pod: "{{gitea_k8s_container_db_pod}}"
-      command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"
+    - name: PostgreSQL - copy dump
+      ansible.builtin.shell: "{{ gitea_k8s_app }} cp {{ temp_folder_path }}/dump.postgres.sql {{ gitea_k8s_container_db_pod }}:/tmp/dump.postgres.sql -n {{ gitea_k8s_container_db_namespace }}"
+    - name: PostgreSQL - Delete DB
+      kubernetes.core.k8s_exec:
+        namespace: "{{ gitea_k8s_container_db_namespace }}"
+        pod: "{{ gitea_k8s_container_db_pod }}"
+        command: "/bin/bash -c 'export PGPASSWORD={{ db_password }};psql --username={{ db_username }} -c \"drop owned by {{ db_username }}\"'"
+    - name: PostgreSQL - Restore DB
+      kubernetes.core.k8s_exec:
+        namespace: "{{ gitea_k8s_container_db_namespace }}"
+        pod: "{{ gitea_k8s_container_db_pod }}"
+        command: "/bin/bash -c 'export PGPASSWORD={{ db_password }};psql --username={{ db_username }} {{ db_database }} < /tmp/dump.postgres.sql'"
+    - name: PostgreSQL - delete dump
+      kubernetes.core.k8s_exec:
+        namespace: "{{ gitea_k8s_container_db_namespace }}"
+        pod: "{{ gitea_k8s_container_db_pod }}"
+        command: "/bin/bash -c 'rm /tmp/dump.postgres.sql'"

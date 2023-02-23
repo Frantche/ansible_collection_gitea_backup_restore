@@ -42,24 +42,29 @@ Before using the collection, you need to install it with the Ansible Galaxy CLI:
 If you would like to perform a backup of your gitea installation. You will need to prepare the following variables:
 
 If you wish to backup kubernetes
+```
 gitea_installation: kubernetes
 gitea_k8s_container_app_namespace: tobedefined
-gitea_k8s_container_app_pod: 	tobedefined
+gitea_k8s_container_app_pod: tobedefined
 gitea_k8s_container_db_namespace: tobedefined
 gitea_k8s_container_db_pod: tobedefined
+```
 
 If you wish to backup docker
+```
 gitea_installation: docker
 gitea_docker_container_app: tobedefined
 gitea_docker_container_db: tobedefined
+```
 
 The variable to push to backup to S3
+```
 gitea_backup_s3_access_key: tobedefined
 gitea_backup_s3_secret_key: tobedefined
 gitea_backup_s3_bucket: tobedefined
 gitea_backup_s3_endpoint: tobedefined
 gitea_backup_s3_encrypt: tobedefined
-
+```
 
 
 ```yaml
@@ -77,24 +82,31 @@ gitea_backup_s3_encrypt: tobedefined
 If you would like to perform a restore of your gitea installation. You will need to prepare the following variables:
 
 If you wish to backup kubernetes
+```
 gitea_installation: kubernetes
 gitea_k8s_container_app_namespace: tobedefined
-gitea_k8s_container_app_pod: 	tobedefined
+gitea_k8s_container_app_pod: tobedefined
 gitea_k8s_container_db_namespace: tobedefined
 gitea_k8s_container_db_pod: tobedefined
+```
 
 If you wish to backup docker
+```
 gitea_installation: docker
 gitea_docker_container_app: tobedefined
 gitea_docker_container_db: tobedefined
+```
 
 The variable to download the backup file from S3
+```
 gitea_backup_s3_access_key: tobedefined
 gitea_backup_s3_secret_key: tobedefined
 gitea_backup_s3_bucket: tobedefined
 gitea_backup_s3_endpoint: tobedefined
 gitea_backup_s3_encrypt: tobedefined
 gitea_backup_s3_filename: tobedefined
+```
+
 
 ```yaml
 ---

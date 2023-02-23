@@ -18,21 +18,21 @@
     db_charset: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='CHARSET', default='bla') }}"
     db_path: "{{ gitea_ini.stdout | frantchenco.gitea.parse_ini(section='database', name='PATH', default='bla') }}"
 
-- name: backup repo
-  shell: "cp {{repo_path}} {{temp_folder_path}}/repo"
+- name: Backup repo
+  ansible.builtin.shell: "cp {{ repo_path }} {{ temp_folder_path }}/repo"
 
-- name: backup avatars
-  shell: "cp {{avatar_path}} {{temp_folder_path}}/avatars"
+- name: Backup avatars
+  ansible.builtin.shell: "cp {{ avatar_path }} {{ temp_folder_path }}/avatars"
   ignore_errors: true
 
-- name: backup repo avatars
-  shell: "cp {{avatar_repo_path}} {{temp_folder_path}}/repo-avatars"
+- name: Backup repo avatars
+  ansible.builtin.shell: "cp {{ avatar_repo_path }} {{ temp_folder_path }}/repo-avatars"
   ignore_errors: true
-  
+
 - name: MSQL database - dump
-  shell: "/bin/bash -c 'export MYSQL_PWD={{db_password}};mysqldump --user={{db_username}} --host={{db_host}} {{db_database}} > /{{temp_folder_path}}/dump.mysql.sql'"
+  ansible.builtin.shell: "/bin/bash -c 'export MYSQL_PWD={{ db_password }};mysqldump --user={{ db_username }} --host={{ db_host }} {{ db_database }} > /{{ temp_folder_path }}/dump.mysql.sql'"
   when: db_type == "mysql"
 
 - name: PostgreSQL database - dump
-  shell: "/bin/bash -c 'export PGPASSWORD={{db_password}}; pg_dump --username={{db_username}} --host={{db_host}} {{db_database}} > /tmp/dump.postgres.sql''"
+  ansible.builtin.shell: "/bin/bash -c 'export PGPASSWORD={{ db_password }}; pg_dump --username={{ db_username }} --host={{ db_host }} {{ db_database }} > /tmp/dump.postgres.sql''"
   when: db_type == "postgres"

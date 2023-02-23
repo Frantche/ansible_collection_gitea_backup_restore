@@ -2,11 +2,11 @@
 
 - name: Download backup
   amazon.aws.s3_object:
-    bucket: "{{gitea_backup_s3_bucket}}"
-    object: "{{gitea_backup_s3_filename}}"
-    dest: "{{temp_archive_path}}"
+    bucket: "{{ gitea_backup_s3_bucket }}"
+    object: "{{ gitea_backup_s3_filename }}"
+    dest: "{{ temp_archive_path }}"
     mode: get
     overwrite: different
-    endpoint_url: "{{gitea_backup_s3_endpoint}}"
-    access_key: "{{gitea_backup_s3_access_key}}"
-    secret_key: "{{gitea_backup_s3_secret_key}}"
+    endpoint_url: "{{ gitea_backup_s3_endpoint }}"
+    access_key: "{{ gitea_backup_s3_access_key }}"
+    secret_key: "{{ gitea_backup_s3_secret_key }}"
